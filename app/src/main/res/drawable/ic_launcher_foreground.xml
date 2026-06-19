@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Bar 1: full-width (SVG x=22,y=22,w=36,h=5,rx=2 scaled ×1.35) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M32.4,29.7 L75.6,29.7 A2.7,2.7 0 0 1 78.3,32.4 L78.3,33.75 A2.7,2.7 0 0 1 75.6,36.45 L32.4,36.45 A2.7,2.7 0 0 1 29.7,33.75 L29.7,32.4 A2.7,2.7 0 0 1 32.4,29.7 Z" />
+
+    <!-- Bar 2: short (SVG x=22,y=37.5,w=26,h=5,rx=2 scaled ×1.35) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M32.4,50.6 L62.1,50.6 A2.7,2.7 0 0 1 64.8,53.3 L64.8,54.65 A2.7,2.7 0 0 1 62.1,57.35 L32.4,57.35 A2.7,2.7 0 0 1 29.7,54.65 L29.7,53.3 A2.7,2.7 0 0 1 32.4,50.6 Z" />
+
+    <!-- Bar 3: full-width (SVG x=22,y=53,w=36,h=5,rx=2 scaled ×1.35) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M32.4,71.55 L75.6,71.55 A2.7,2.7 0 0 1 78.3,74.25 L78.3,75.6 A2.7,2.7 0 0 1 75.6,78.3 L32.4,78.3 A2.7,2.7 0 0 1 29.7,75.6 L29.7,74.25 A2.7,2.7 0 0 1 32.4,71.55 Z" />
+
+</vector>
