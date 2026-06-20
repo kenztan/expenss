@@ -405,7 +405,7 @@ private fun SavingsRecordRow(record: Saving, amount: String, onDelete: () -> Uni
             Icon(IcWallet, null, tint = Color(0xFFA78BFA), modifier = Modifier.size(18.dp))
         }
         Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-            Text(record.note ?: "Savings Deposit", fontSize = 14.sp,
+            Text(record.note?.takeIf { it.isNotBlank() } ?: "Savings Deposit", fontSize = 14.sp,
                 fontWeight = FontWeight.Medium, color = DText)
             Text(formatSavingsDate(record.date), fontSize = 11.sp, color = DText3)
         }

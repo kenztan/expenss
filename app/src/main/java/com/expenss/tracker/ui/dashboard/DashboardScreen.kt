@@ -145,6 +145,7 @@ fun DashboardScreen(
             ) {
                 // Overview card
                 item {
+                    if (isLoading) { SkeletonDashboardOverview(); return@item }
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -202,6 +203,7 @@ fun DashboardScreen(
 
                 // Category deck
                 item {
+                    if (isLoading) { SkeletonCategoryDeck(); return@item }
                     CategoryDeck(
                         expenses = expenses,
                         categoryBudgets = categoryBudgets,
@@ -217,6 +219,7 @@ fun DashboardScreen(
 
                 // Quick stats
                 item {
+                    if (isLoading) { SkeletonQuickStats(); return@item }
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(12.dp)

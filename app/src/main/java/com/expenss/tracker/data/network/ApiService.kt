@@ -4,7 +4,9 @@ import retrofit2.http.*
 
 data class LoginRequest(val username: String, val password: String)
 data class LoginResponse(val message: String, val access_token: String)
-data class RegisterRequest(val name: String, val email: String, val password: String)
+data class RegisterRequest(val username: String, val email: String, val password: String, val agreedToTerms: Boolean = true)
+data class ForgotPasswordRequest(val email: String)
+data class SetTrackingModeRequest(val currency: String, val trackingMode: String, val cycleStartDay: Int? = null)
 
 data class UserProfile(
     val userId: Int? = null,
@@ -12,7 +14,8 @@ data class UserProfile(
     val currency: String,
     val trackingMode: String?,
     val cycleStartDay: Int?,
-    val monthlyCommitment: Double? = null
+    val monthlyCommitment: Double? = null,
+    val onboardingCompleted: Boolean = false
 )
 
 data class Expense(
@@ -86,8 +89,14 @@ interface ApiService {
     @POST("auth/signup")
     suspend fun register(@Body body: RegisterRequest): Any
 
+    @POST("auth/forgot-pass")
+    suspend fun forgotPassword(@Body body: ForgotPasswordRequest): Any
+
     @GET("auth/me")
     suspend fun getMe(): UserProfile
+
+    @PUT("users/setup")
+    suspend fun setTrackingMode(@Body body: SetTrackingModeRequest): Any
 
     @PUT("users/currency")
     suspend fun setCurrency(@Body body: SetCurrencyRequest): Any

@@ -5,8 +5,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -28,7 +30,9 @@ import com.expenss.tracker.ui.theme.*
 @Composable
 fun LoginScreen(
     onLoginSuccess: () -> Unit,
-    onNavigateToRegister: () -> Unit
+    onNeedsOnboarding: () -> Unit = {},
+    onNavigateToRegister: () -> Unit,
+    onNavigateToForgotPassword: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val viewModel: AuthViewModel = viewModel(factory = object : ViewModelProvider.Factory {
@@ -58,18 +62,20 @@ fun LoginScreen(
     LaunchedEffect(loginState) {
         when (loginState) {
             is LoginState.Success -> onLoginSuccess()
+            is LoginState.NeedsOnboarding -> onNeedsOnboarding()
             is LoginState.Error -> errorMsg = (loginState as LoginState.Error).message
             else -> {}
         }
     }
 
     Box(
-        modifier = Modifier.fillMaxSize().background(bg),
+        modifier = Modifier.fillMaxSize().background(bg).imePadding(),
         contentAlignment = Alignment.Center
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -139,7 +145,7 @@ fun LoginScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text("Password", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = text2)
-                    TextButton(onClick = {}, contentPadding = PaddingValues(0.dp)) {
+                    TextButton(onClick = onNavigateToForgotPassword, contentPadding = PaddingValues(0.dp)) {
                         Text("Forgot password?", fontSize = 12.sp, color = Accent)
                     }
                 }

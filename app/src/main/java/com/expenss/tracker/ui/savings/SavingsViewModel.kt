@@ -75,6 +75,9 @@ class SavingsViewModel(context: Context) : ViewModel() {
     fun loadAll() {
         viewModelScope.launch {
             _isLoading.value = true
+
+            // Compute monthly remaining independently so a budget/expense failure
+            // doesn't block the savings list from loading.
             try {
                 val now = Calendar.getInstance()
                 val expenses = if (trackingMode == "paycycle") {
@@ -95,16 +98,22 @@ class SavingsViewModel(context: Context) : ViewModel() {
                         ?.let { Calendar.getInstance().also { c -> c.time = it }.get(Calendar.YEAR) }
                         ?: now.get(Calendar.YEAR)
                 } else now.get(Calendar.YEAR)
-
                 val budget = api.getBudget(budgetMonth, budgetYear)
                 val spent  = expenses.sumOf { it.amount }
                 _monthlyRemaining.value = if (budget != null) maxOf(0.0, budget.amount - spent) else 0.0
+            } catch (_: Exception) {}
 
+            try {
                 val summary = api.getSavingsSummary(_monthlyRemaining.value)
-                _totalSavings.value     = summary.totalSavings
+                _totalSavings.value      = summary.totalSavings
                 _avgMonthlySavings.value = summary.avgMonthlySavings
+            } catch (_: Exception) {}
+
+            // Records load independently — never blocked by budget/expense failures.
+            try {
                 _records.value = api.getSavings()
             } catch (_: Exception) {}
+
             _isLoading.value = false
         }
     }

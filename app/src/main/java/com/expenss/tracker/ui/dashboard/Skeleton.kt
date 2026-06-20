@@ -71,6 +71,107 @@ fun SkeletonExpenseRows(count: Int = 4) {
     }
 }
 
+// ── Dashboard: overview card skeleton ────────────────────────────────────────
+
+@Composable
+fun SkeletonDashboardOverview() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(14.dp))
+            .background(DSurface)
+            .border(1.dp, DBorder, RoundedCornerShape(14.dp))
+    ) {
+        Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 18.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(20.dp)
+            ) {
+                // Ring placeholder
+                SkeletonBox(Modifier.size(110.dp), CircleShape)
+                Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                    repeat(3) {
+                        Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                            SkeletonBox(Modifier.width(48.dp).height(9.dp))
+                            SkeletonBox(Modifier.width(90.dp).height(18.dp))
+                        }
+                    }
+                }
+            }
+            Spacer(Modifier.height(14.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth()
+                    .border(0.5.dp, DBorder, RoundedCornerShape(0.dp))
+                    .padding(vertical = 14.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                SkeletonBox(Modifier.width(80.dp).height(12.dp))
+                SkeletonBox(Modifier.width(100.dp).height(12.dp))
+            }
+        }
+    }
+}
+
+// ── Dashboard: quick stats 3-card skeleton ────────────────────────────────────
+
+@Composable
+fun SkeletonQuickStats() {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        repeat(3) {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(DSurface)
+                    .border(1.dp, DBorder, RoundedCornerShape(14.dp))
+                    .padding(horizontal = 12.dp, vertical = 14.dp),
+                verticalArrangement = Arrangement.spacedBy(7.dp)
+            ) {
+                SkeletonBox(Modifier.size(32.dp), RoundedCornerShape(9.dp))
+                SkeletonBox(Modifier.fillMaxWidth(0.8f).height(18.dp))
+                SkeletonBox(Modifier.width(52.dp).height(10.dp))
+            }
+        }
+    }
+}
+
+// ── Dashboard: category deck skeleton ────────────────────────────────────────
+
+@Composable
+fun SkeletonCategoryDeck() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(14.dp))
+            .background(DSurface)
+            .border(1.dp, DBorder, RoundedCornerShape(14.dp))
+            .padding(14.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        repeat(3) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                SkeletonBox(Modifier.size(32.dp), RoundedCornerShape(8.dp))
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(5.dp)
+                ) {
+                    SkeletonBox(Modifier.fillMaxWidth(0.4f).height(11.dp))
+                    SkeletonBox(Modifier.fillMaxWidth().height(4.dp), RoundedCornerShape(999.dp))
+                }
+                SkeletonBox(Modifier.width(52.dp).height(13.dp))
+            }
+        }
+    }
+}
+
 // ── Goals: skeleton matching the dream card ──────────────────────────────────
 
 @Composable

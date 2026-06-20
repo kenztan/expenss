@@ -111,6 +111,14 @@ val IcReceipt = lucide(listOf(
     "M16 8H8M16 12H8M12 16H8"
 ))
 val IcCheck = lucide(listOf("M20 6L9 17L4 12"))
+val IcCalendar = lucide(listOf(
+    "M3 4h18a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z",
+    line(16f, 2f, 16f, 6f), line(8f, 2f, 8f, 6f), line(3f, 10f, 21f, 10f)
+))
+val IcRefreshCcw = lucide(listOf(
+    "M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8",
+    "M3 3v5h5"
+))
 val IcTriangleAlert = lucide(listOf(
     "M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z",
     line(12f, 9f, 12f, 13f),

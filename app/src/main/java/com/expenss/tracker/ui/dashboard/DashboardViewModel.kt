@@ -46,7 +46,7 @@ class DashboardViewModel(context: Context) : ViewModel() {
     private val _currency = MutableStateFlow("JPY")
     val currency: StateFlow<String> = _currency
 
-    private val _isLoading = MutableStateFlow(false)
+    private val _isLoading = MutableStateFlow(true)
     val isLoading: StateFlow<Boolean> = _isLoading
 
     private val _error = MutableStateFlow<String?>(null)
