@@ -24,6 +24,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.expenss.tracker.data.network.Expense
+import com.expenss.tracker.i18n.t
 import com.expenss.tracker.ui.theme.IcBarChart
 import com.expenss.tracker.ui.theme.IcClose
 import com.expenss.tracker.ui.theme.IcEdit
@@ -88,7 +89,7 @@ fun DashboardScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Text("Dashboard", fontSize = 15.sp, fontWeight = FontWeight.SemiBold,
+                    Text(t("dashboard.nav.dashboard"), fontSize = 15.sp, fontWeight = FontWeight.SemiBold,
                         color = DText, letterSpacing = (-0.3).sp)
                     Row(
                         modifier = Modifier
@@ -131,7 +132,9 @@ fun DashboardScreen(
                                 showMenu = false
                                 com.expenss.tracker.util.TokenManager(context).clearToken()
                                 onLogout()
-                            }
+                            },
+                            onChangePassword = { showMenu = false; onNavigate("forgot-password") },
+                            onContact = { showMenu = false; onNavigate("contact") }
                         )
                     }
                 }
@@ -176,14 +179,14 @@ fun DashboardScreen(
                                         Text("$spentPercent%", fontSize = 22.sp,
                                             fontWeight = FontWeight.ExtraBold, color = DText,
                                             letterSpacing = (-0.8).sp)
-                                        Text("USED", fontSize = 8.sp, fontWeight = FontWeight.SemiBold,
+                                        Text(t("dashboard.used").uppercase(), fontSize = 8.sp, fontWeight = FontWeight.SemiBold,
                                             color = DText3, letterSpacing = 0.1.sp)
                                     }
                                 }
                                 Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                                    OvStat("BUDGET", formatAmount(currency, budget), isMuted = true)
-                                    OvStat("SPENT", formatAmount(currency, totalSpent))
-                                    OvStat("REMAINING", formatAmount(currency, remaining),
+                                    OvStat(t("dashboard.budget").uppercase(), formatAmount(currency, budget), isMuted = true)
+                                    OvStat(t("dashboard.spent").uppercase(), formatAmount(currency, totalSpent))
+                                    OvStat(t("dashboard.remaining").uppercase(), formatAmount(currency, remaining),
                                         valueColor = if (remaining >= 0) Color(0xFF4ADE80) else Color(0xFFF87171))
                                 }
                             }
@@ -194,8 +197,8 @@ fun DashboardScreen(
                                     .padding(vertical = 14.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                OvMeta("${vm.getDaysLeft()} days left")
-                                OvMeta("Daily avg ${formatAmount(currency, vm.getDailyAvg(totalSpent))}")
+                                OvMeta("${vm.getDaysLeft()} ${t("dashboard.daysLeft")}")
+                                OvMeta("${t("dashboard.dailyAvg")} ${formatAmount(currency, vm.getDailyAvg(totalSpent))}")
                             }
                         }
                     }
@@ -220,6 +223,10 @@ fun DashboardScreen(
                 // Quick stats
                 item {
                     if (isLoading) { SkeletonQuickStats(); return@item }
+                    val topCategory = expenses.groupBy { it.category }
+                        .maxByOrNull { it.value.sumOf { e -> e.amount } }?.key
+                    val (topCatBg, topCatColor) = topCategory?.let { categoryColors(it) }
+                        ?: (Color(0x1F3B82F6) to DAccent)
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -228,23 +235,21 @@ fun DashboardScreen(
                             modifier = Modifier.weight(1f),
                             icon = IcReceipt,
                             iconBg = Color(0x263B82F6), iconColor = Color(0xFF60A5FA),
-                            value = "${expenses.size}", label = "Transactions"
+                            value = "${expenses.size}", label = t("dashboard.transactions")
                         )
                         QsCard(
                             modifier = Modifier.weight(1f),
                             icon = IcInvestment,
                             iconBg = Color(0x1F22C55E), iconColor = Color(0xFF4ADE80),
                             value = formatAmount(currency, vm.getDailyAvg(totalSpent)),
-                            label = "Per day"
+                            label = t("dashboard.perDay")
                         )
                         QsCard(
                             modifier = Modifier.weight(1f),
-                            icon = IcBarChart,
-                            iconBg = Color(0x1F3B82F6), iconColor = DAccent,
-                            value = expenses.groupBy { it.category }
-                                .maxByOrNull { it.value.sumOf { e -> e.amount } }
-                                ?.key?.replaceFirstChar { it.uppercase() } ?: "—",
-                            label = "Top category",
+                            icon = categoryIcon(topCategory ?: "other"),
+                            iconBg = topCatBg, iconColor = topCatColor,
+                            value = topCategory?.let { t("dashboard.cat.$it") } ?: "—",
+                            label = t("dashboard.topCategory"),
                             smallValue = true
                         )
                     }
@@ -262,7 +267,7 @@ fun DashboardScreen(
                             shape = RoundedCornerShape(14.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = DAccent)
                         ) {
-                            Text("+ Add Expense", fontSize = 14.sp, fontWeight = FontWeight.Medium,
+                            Text("+ ${t("dashboard.addExpense")}", fontSize = 14.sp, fontWeight = FontWeight.Medium,
                                 color = Color.White)
                         }
                         Button(
@@ -271,7 +276,7 @@ fun DashboardScreen(
                             shape = RoundedCornerShape(14.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = DSurface2)
                         ) {
-                            Text("Manage Budget", fontSize = 14.sp, fontWeight = FontWeight.Medium,
+                            Text(t("dashboard.manageBudget"), fontSize = 14.sp, fontWeight = FontWeight.Medium,
                                 color = DText)
                         }
                     }
@@ -284,7 +289,7 @@ fun DashboardScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Text("EXPENSES", fontSize = 11.sp, fontWeight = FontWeight.SemiBold,
+                        Text(t("dashboard.expenses").uppercase(), fontSize = 11.sp, fontWeight = FontWeight.SemiBold,
                             color = DText3, letterSpacing = 0.1.sp)
                         if (filteredExpenses.isNotEmpty()) {
                             Box(
@@ -305,7 +310,7 @@ fun DashboardScreen(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(4.dp)
                             ) {
-                                Text(selectedCategory!!.replaceFirstChar { it.uppercase() },
+                                Text(t("dashboard.cat.${selectedCategory!!}"),
                                     fontSize = 11.sp, color = DAccent, fontWeight = FontWeight.Medium)
                                 IconButton(
                                     onClick = { selectedCategory = null; expandedCategory = null },
@@ -341,7 +346,7 @@ fun DashboardScreen(
     // ── Add Expense dialog ──
     if (showAddExpense) {
         ExpenseSheet(
-            title = "Add Expense",
+            title = t("dashboard.addExpense"),
             currencySymbol = currencySymbol(currency),
             onDismiss = { showAddExpense = false },
             onSave = { name, amount, category, date, note ->
@@ -353,7 +358,7 @@ fun DashboardScreen(
     // ── Edit Expense dialog ──
     expenseToEdit?.let { exp ->
         ExpenseSheet(
-            title = "Edit Expense",
+            title = t("dashboard.editExpense"),
             currencySymbol = currencySymbol(currency),
             initial = exp,
             onDismiss = { expenseToEdit = null },
@@ -383,18 +388,18 @@ fun DashboardScreen(
             onDismissRequest = { expenseToDelete = null },
             containerColor = DSurface,
             shape = RoundedCornerShape(18.dp),
-            title = { Text("Delete expense?", color = DText, fontWeight = FontWeight.Bold,
+            title = { Text(t("dashboard.deleteTitle"), color = DText, fontWeight = FontWeight.Bold,
                 fontSize = 16.sp, letterSpacing = (-0.3).sp) },
-            text = { Text("Delete \"${exp.name}\" (${formatAmount(currency, exp.amount)})?",
+            text = { Text("${t("dashboard.deleteDesc")} \"${exp.name}\" (${formatAmount(currency, exp.amount)})?",
                 color = DText2, fontSize = 13.5.sp, lineHeight = 20.sp) },
             confirmButton = {
                 TextButton(onClick = {
                     vm.deleteExpense(exp.id)
                     expenseToDelete = null
-                }) { Text("Delete", color = DRed, fontWeight = FontWeight.SemiBold) }
+                }) { Text(t("dashboard.delete"), color = DRed, fontWeight = FontWeight.SemiBold) }
             },
             dismissButton = {
-                TextButton(onClick = { expenseToDelete = null }) { Text("Cancel", color = DText2) }
+                TextButton(onClick = { expenseToDelete = null }) { Text(t("dashboard.cancel"), color = DText2) }
             }
         )
     }
@@ -455,9 +460,9 @@ fun EmptyState() {
             Icon(IcReceipt, null, tint = DText3, modifier = Modifier.size(28.dp))
         }
         Spacer(Modifier.height(8.dp))
-        Text("No expenses yet", fontSize = 15.sp, fontWeight = FontWeight.SemiBold,
+        Text(t("dashboard.noExpenses"), fontSize = 15.sp, fontWeight = FontWeight.SemiBold,
             color = DText, letterSpacing = (-0.2).sp)
-        Text("Add your first expense to get started", fontSize = 13.sp, color = DText3,
+        Text(t("dashboard.noExpensesDesc"), fontSize = 13.sp, color = DText3,
             lineHeight = 20.sp)
     }
 }
@@ -481,7 +486,7 @@ fun ExpenseRow(expense: Expense, amount: String, onEdit: () -> Unit, onDelete: (
                 maxLines = 1, overflow = TextOverflow.Ellipsis, letterSpacing = (-0.2).sp)
             Box(modifier = Modifier.clip(RoundedCornerShape(999.dp)).background(catBg)
                 .padding(horizontal = 8.dp, vertical = 2.dp)) {
-                Text(expense.category.replaceFirstChar { it.uppercase() },
+                Text(t("dashboard.cat.${expense.category}"),
                     fontSize = 10.5.sp, fontWeight = FontWeight.Medium, color = catColor)
             }
         }

@@ -124,6 +124,24 @@ val IcTriangleAlert = lucide(listOf(
     line(12f, 9f, 12f, 13f),
     line(12f, 17f, 12.01f, 17f)
 ))
+val IcLock = lucide(listOf(
+    rrect(3f, 11f, 18f, 11f, 2f),
+    "M7 11V7a5 5 0 0 1 10 0v4"
+))
+val IcHeadset = lucide(listOf(
+    "M8 2l1.88 1.88", "M14.12 3.88 16 2",
+    "M9 7.13v-1a3.003 3.003 0 1 1 6 0v1",
+    "M12 20c-3.3 0-6-2.7-6-6v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3c0 3.3-2.7 6-6 6",
+    "M12 20v-9",
+    "M6.53 9C4.6 8.8 3 7.1 3 5", "M6 13H2",
+    "M3 21c0-2.1 1.7-3.9 3.8-4",
+    "M20.97 5c0 2.1-1.6 3.8-3.5 4", "M22 13h-4",
+    "M17.2 17c2.1.1 3.8 1.9 3.8 4"
+))
+val IcMail = lucide(listOf(
+    rrect(2f, 4f, 20f, 16f, 2f),
+    "M22 6l-10 7L2 6"
+))
 val IcTrophy = lucide(listOf(
     "M6 9H4.5a2.5 2.5 0 0 1 0-5H6",
     "M18 9h1.5a2.5 2.5 0 0 0 0-5H18",

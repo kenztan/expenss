@@ -23,6 +23,27 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+            <!-- Deep links for password-reset and verify-email emails (frontend-expenss is
+                 served from expenss.online; see environment.ts's api.expenss.online apiUrl). -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="https"
+                    android:host="expenss.online"
+                    android:pathPrefix="/auth/reset-pass" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="https"
+                    android:host="expenss.online"
+                    android:pathPrefix="/auth/verify-email" />
+            </intent-filter>
         </activity>
     </application>
 

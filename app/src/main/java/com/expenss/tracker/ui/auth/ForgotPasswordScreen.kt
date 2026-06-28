@@ -3,6 +3,7 @@ package com.expenss.tracker.ui.auth
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,7 +24,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.expenss.tracker.ui.theme.Accent
+import com.expenss.tracker.i18n.t
+import com.expenss.tracker.ui.theme.*
 
 @Composable
 fun ForgotPasswordScreen(onNavigateToLogin: () -> Unit) {
@@ -50,18 +52,19 @@ fun ForgotPasswordScreen(onNavigateToLogin: () -> Unit) {
     }
 
     val emailError = when {
-        email.isEmpty() -> "Email is required"
-        !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches() -> "Enter a valid email"
+        email.isEmpty() -> t("forgotPassword.emailRequired")
+        !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches() -> t("forgotPassword.emailInvalid")
         else -> null
     }
 
-    val bg      = Color(0xFF0B0D14)
-    val bg2     = Color(0xFF161C2E)
-    val text    = Color(0xFFDDE3F5)
-    val text2   = Color(0xFF7880A0)
-    val text3   = Color(0xFF404A68)
-    val border  = Color(0x14FFFFFF)
-    val border2 = Color(0x20FFFFFF)
+    val isDark = isSystemInDarkTheme()
+    val bg = if (isDark) BgDark else BgLight
+    val bg2 = if (isDark) Bg2Dark else Bg2Light
+    val text = if (isDark) TextDark else TextLight
+    val text2 = if (isDark) Text2Dark else Text2Light
+    val text3 = if (isDark) Text3Dark else Text3Light
+    val border = if (isDark) Color(0x14FFFFFF) else Color(0x14000000)
+    val border2 = if (isDark) Color(0x20FFFFFF) else Color(0x20000000)
     val errorRed = Color(0xFFE24B4A)
 
     Box(modifier = Modifier.fillMaxSize().background(bg).imePadding(), contentAlignment = Alignment.Center) {
@@ -79,10 +82,10 @@ fun ForgotPasswordScreen(onNavigateToLogin: () -> Unit) {
                 ) {
                     Text("✉", fontSize = 28.sp)
                 }
-                Text("Check your email", fontSize = 22.sp, fontWeight = FontWeight.SemiBold,
+                Text(t("forgotPassword.checkEmailTitle"), fontSize = 22.sp, fontWeight = FontWeight.SemiBold,
                     color = text, letterSpacing = (-0.5).sp)
                 Text(
-                    "If an account exists for that email, we sent a password reset link. Check your spam folder if you don't see it.",
+                    t("forgotPassword.checkEmailDesc"),
                     fontSize = 14.sp, color = text2, lineHeight = 22.sp,
                     textAlign = TextAlign.Center
                 )
@@ -93,7 +96,7 @@ fun ForgotPasswordScreen(onNavigateToLogin: () -> Unit) {
                     shape = RoundedCornerShape(10.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Accent)
                 ) {
-                    Text("Back to Sign in", fontSize = 14.sp, fontWeight = FontWeight.Medium,
+                    Text(t("forgotPassword.backToLogin"), fontSize = 14.sp, fontWeight = FontWeight.Medium,
                         color = Color.White)
                 }
             }
@@ -123,10 +126,10 @@ fun ForgotPasswordScreen(onNavigateToLogin: () -> Unit) {
                     Text("✉", fontSize = 20.sp)
                 }
                 Spacer(Modifier.height(16.dp))
-                Text("Forgot password?", fontSize = 22.sp, fontWeight = FontWeight.SemiBold,
+                Text(t("forgotPassword.title"), fontSize = 22.sp, fontWeight = FontWeight.SemiBold,
                     color = text, letterSpacing = (-0.5).sp)
                 Spacer(Modifier.height(6.dp))
-                Text("Enter your email and we'll send you a reset link",
+                Text(t("forgotPassword.subtitle"),
                     fontSize = 14.sp, color = text2, fontWeight = FontWeight.Light)
                 Spacer(Modifier.height(24.dp))
 
@@ -149,13 +152,13 @@ fun ForgotPasswordScreen(onNavigateToLogin: () -> Unit) {
                     }
                 }
 
-                Text("Email", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = text2)
+                Text(t("forgotPassword.emailLabel"), fontSize = 13.sp, fontWeight = FontWeight.Medium, color = text2)
                 Spacer(Modifier.height(6.dp))
                 OutlinedTextField(
                     value = email,
                     onValueChange = { email = it; touched = true; errorMsg = "" },
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("you@example.com", color = text3, fontSize = 14.sp) },
+                    placeholder = { Text("you@email.com", color = text3, fontSize = 14.sp) },
                     singleLine = true,
                     isError = touched && emailError != null,
                     shape = RoundedCornerShape(10.dp),
@@ -194,7 +197,7 @@ fun ForgotPasswordScreen(onNavigateToLogin: () -> Unit) {
                         CircularProgressIndicator(modifier = Modifier.size(18.dp),
                             color = Color.White, strokeWidth = 2.dp)
                     } else {
-                        Text("Send reset link", fontSize = 14.sp,
+                        Text(t("forgotPassword.sendLink"), fontSize = 14.sp,
                             fontWeight = FontWeight.Medium, color = Color.White)
                     }
                 }
@@ -202,9 +205,9 @@ fun ForgotPasswordScreen(onNavigateToLogin: () -> Unit) {
 
             Spacer(Modifier.height(20.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("Remember your password? ", fontSize = 13.sp, color = text3)
+                Text("${t("forgotPassword.rememberPassword")} ", fontSize = 13.sp, color = text3)
                 TextButton(onClick = onNavigateToLogin, contentPadding = PaddingValues(0.dp)) {
-                    Text("Sign in", fontSize = 13.sp, color = Accent, fontWeight = FontWeight.Medium)
+                    Text(t("forgotPassword.backToLogin"), fontSize = 13.sp, color = Accent, fontWeight = FontWeight.Medium)
                 }
             }
         }

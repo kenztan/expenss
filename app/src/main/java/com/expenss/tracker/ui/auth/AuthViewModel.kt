@@ -9,14 +9,14 @@ import com.expenss.tracker.data.network.LoginResponse
 import com.expenss.tracker.data.network.LoginRequest
 import com.expenss.tracker.data.network.ForgotPasswordRequest
 import com.expenss.tracker.data.network.RegisterRequest
+import com.expenss.tracker.data.network.ResetPasswordRequest
 import com.expenss.tracker.data.network.RetrofitClient
 import com.expenss.tracker.data.network.SetTrackingModeRequest
 import com.expenss.tracker.util.TokenManager
+import com.expenss.tracker.util.mapBackendError
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import org.json.JSONObject
-import retrofit2.HttpException
 
 class AuthViewModel(context: Context) : ViewModel() {
     private val tokenManager = TokenManager(context)
@@ -34,7 +34,7 @@ class AuthViewModel(context: Context) : ViewModel() {
                 api.register(RegisterRequest(username, email, password))
                 _registerState.value = RegisterState.Success
             } catch (e: Exception) {
-                _registerState.value = RegisterState.Error(parseError(e, "Registration failed"))
+                _registerState.value = RegisterState.Error(parseError(e, "errors.unexpected"))
             }
         }
     }
@@ -52,7 +52,7 @@ class AuthViewModel(context: Context) : ViewModel() {
                     _loginState.value = LoginState.NeedsOnboarding
                 }
             } catch (e: Exception) {
-                _loginState.value = LoginState.Error(parseError(e, "Login failed"))
+                _loginState.value = LoginState.Error(parseError(e, "errors.unexpected"))
             }
         }
     }
@@ -64,7 +64,7 @@ class AuthViewModel(context: Context) : ViewModel() {
                 api.forgotPassword(ForgotPasswordRequest(email))
                 _forgotState.value = ForgotState.Success
             } catch (e: Exception) {
-                _forgotState.value = ForgotState.Error(parseError(e, "Failed to send reset email"))
+                _forgotState.value = ForgotState.Error(parseError(e, "errors.unexpected"))
             }
         }
     }
@@ -79,7 +79,7 @@ class AuthViewModel(context: Context) : ViewModel() {
                 api.setTrackingMode(SetTrackingModeRequest(currency, trackingMode, cycleStartDay))
                 _onboardingState.value = OnboardingState.Success
             } catch (e: Exception) {
-                _onboardingState.value = OnboardingState.Error(parseError(e, "Setup failed"))
+                _onboardingState.value = OnboardingState.Error(parseError(e, "errors.unexpected"))
             }
         }
     }
@@ -87,18 +87,37 @@ class AuthViewModel(context: Context) : ViewModel() {
     private val _onboardingState = MutableStateFlow<OnboardingState>(OnboardingState.Idle)
     val onboardingState: StateFlow<OnboardingState> = _onboardingState
 
-    private fun parseError(e: Exception, fallback: String): String {
-        if (e is HttpException) {
-            if (e.code() == 409) return "An account with those details already exists."
-            val body = e.response()?.errorBody()?.string()
-            if (!body.isNullOrBlank()) {
-                return try {
-                    JSONObject(body).optString("message", fallback)
-                } catch (_: Exception) { fallback }
+    fun resetPassword(token: String, newPassword: String) {
+        viewModelScope.launch {
+            _resetPasswordState.value = ResetPasswordState.Loading
+            try {
+                api.resetPassword(ResetPasswordRequest(token, newPassword))
+                _resetPasswordState.value = ResetPasswordState.Success
+            } catch (e: Exception) {
+                _resetPasswordState.value = ResetPasswordState.Error(parseError(e, "errors.unexpected"))
             }
         }
-        return e.message ?: fallback
     }
+
+    private val _resetPasswordState = MutableStateFlow<ResetPasswordState>(ResetPasswordState.Idle)
+    val resetPasswordState: StateFlow<ResetPasswordState> = _resetPasswordState
+
+    fun verifyEmail(token: String) {
+        viewModelScope.launch {
+            _verifyEmailState.value = VerifyEmailState.Loading
+            try {
+                api.verifyEmail(token)
+                _verifyEmailState.value = VerifyEmailState.Success
+            } catch (e: Exception) {
+                _verifyEmailState.value = VerifyEmailState.Error(parseError(e, "errors.unexpected"))
+            }
+        }
+    }
+
+    private val _verifyEmailState = MutableStateFlow<VerifyEmailState>(VerifyEmailState.Idle)
+    val verifyEmailState: StateFlow<VerifyEmailState> = _verifyEmailState
+
+    private fun parseError(e: Exception, fallbackKey: String): String = mapBackendError(e, fallbackKey)
 }
 
 sealed class LoginState {
@@ -128,5 +147,19 @@ sealed class RegisterState {
     object Loading: RegisterState()
     object Success: RegisterState()
     data class Error(val message: String): RegisterState()
+}
+
+sealed class ResetPasswordState {
+    object Idle: ResetPasswordState()
+    object Loading: ResetPasswordState()
+    object Success: ResetPasswordState()
+    data class Error(val message: String): ResetPasswordState()
+}
+
+sealed class VerifyEmailState {
+    object Idle: VerifyEmailState()
+    object Loading: VerifyEmailState()
+    object Success: VerifyEmailState()
+    data class Error(val message: String): VerifyEmailState()
 }
 

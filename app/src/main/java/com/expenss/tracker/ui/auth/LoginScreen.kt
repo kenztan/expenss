@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.expenss.tracker.i18n.t
 import com.expenss.tracker.ui.theme.*
 
 @Composable
@@ -88,10 +89,10 @@ fun LoginScreen(
                     .border(0.5.dp, border, RoundedCornerShape(14.dp))
                     .padding(horizontal = 28.dp, vertical = 32.dp)
             ) {
-                Text("Welcome back", fontSize = 22.sp, fontWeight = FontWeight.SemiBold,
+                Text(t("login.title"), fontSize = 22.sp, fontWeight = FontWeight.SemiBold,
                     color = text, letterSpacing = (-0.5).sp)
                 Spacer(Modifier.height(6.dp))
-                Text("Sign in to your Expenss account", fontSize = 14.sp,
+                Text(t("login.subtitle"), fontSize = 14.sp,
                     color = text2, fontWeight = FontWeight.Light)
                 Spacer(Modifier.height(24.dp))
 
@@ -117,13 +118,13 @@ fun LoginScreen(
                 }
 
                 // Username field
-                Text("Username", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = text2)
+                Text(t("login.usernameLabel"), fontSize = 13.sp, fontWeight = FontWeight.Medium, color = text2)
                 Spacer(Modifier.height(6.dp))
                 OutlinedTextField(
                     value = username,
                     onValueChange = { username = it },
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("username", color = text3, fontSize = 14.sp) },
+                    placeholder = { Text(t("login.usernamePlaceholder"), color = text3, fontSize = 14.sp) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                     singleLine = true,
                     shape = RoundedCornerShape(10.dp),
@@ -144,9 +145,9 @@ fun LoginScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Password", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = text2)
+                    Text(t("login.passwordLabel"), fontSize = 13.sp, fontWeight = FontWeight.Medium, color = text2)
                     TextButton(onClick = onNavigateToForgotPassword, contentPadding = PaddingValues(0.dp)) {
-                        Text("Forgot password?", fontSize = 12.sp, color = Accent)
+                        Text(t("login.forgotPassword"), fontSize = 12.sp, color = Accent)
                     }
                 }
                 Spacer(Modifier.height(6.dp))
@@ -193,7 +194,7 @@ fun LoginScreen(
                             strokeWidth = 2.dp
                         )
                     } else {
-                        Text("Sign in", fontSize = 14.sp, fontWeight = FontWeight.Medium,
+                        Text(t("login.signIn"), fontSize = 14.sp, fontWeight = FontWeight.Medium,
                             color = Color.White)
                     }
                 }
@@ -201,9 +202,9 @@ fun LoginScreen(
 
             Spacer(Modifier.height(20.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("Don't have an account? ", fontSize = 13.sp, color = text3)
+                Text("${t("login.noAccount")} ", fontSize = 13.sp, color = text3)
                 TextButton(onClick = onNavigateToRegister, contentPadding = PaddingValues(0.dp)) {
-                    Text("Sign up", fontSize = 13.sp, color = Accent, fontWeight = FontWeight.Medium)
+                    Text(t("login.signUp"), fontSize = 13.sp, color = Accent, fontWeight = FontWeight.Medium)
                 }
             }
         }

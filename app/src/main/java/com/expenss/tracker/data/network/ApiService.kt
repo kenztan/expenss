@@ -6,6 +6,9 @@ data class LoginRequest(val username: String, val password: String)
 data class LoginResponse(val message: String, val access_token: String)
 data class RegisterRequest(val username: String, val email: String, val password: String, val agreedToTerms: Boolean = true)
 data class ForgotPasswordRequest(val email: String)
+data class ResetPasswordRequest(val token: String, val newPassword: String)
+data class ContactRequest(val email: String, val message: String)
+data class ContactResponse(val message: String)
 data class SetTrackingModeRequest(val currency: String, val trackingMode: String, val cycleStartDay: Int? = null)
 
 data class UserProfile(
@@ -91,6 +94,15 @@ interface ApiService {
 
     @POST("auth/forgot-pass")
     suspend fun forgotPassword(@Body body: ForgotPasswordRequest): Any
+
+    @POST("auth/reset-pass")
+    suspend fun resetPassword(@Body body: ResetPasswordRequest): Any
+
+    @GET("auth/verify-email")
+    suspend fun verifyEmail(@Query("token") token: String): Any
+
+    @POST("contact")
+    suspend fun sendContact(@Body body: ContactRequest): ContactResponse
 
     @GET("auth/me")
     suspend fun getMe(): UserProfile

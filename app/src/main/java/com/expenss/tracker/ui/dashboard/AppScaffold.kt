@@ -13,11 +13,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.expenss.tracker.i18n.AppLang
+import com.expenss.tracker.i18n.LocaleManager
+import com.expenss.tracker.i18n.currentLang
+import com.expenss.tracker.i18n.t
 import com.expenss.tracker.ui.theme.IcBarChart
 import com.expenss.tracker.ui.theme.IcDashboard
+import com.expenss.tracker.ui.theme.IcHeadset
+import com.expenss.tracker.ui.theme.IcLock
+import com.expenss.tracker.ui.theme.IcLogout
 import com.expenss.tracker.ui.theme.IcReceipt
 import com.expenss.tracker.ui.theme.IcTarget
 
@@ -27,7 +35,9 @@ fun SimpleTopBar(
     username: String,
     currencyCode: String,
     onSetCurrency: (String) -> Unit,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    onChangePassword: () -> Unit = {},
+    onContact: () -> Unit = {}
 ) {
     var showMenu by remember { mutableStateOf(false) }
     Row(
@@ -58,7 +68,9 @@ fun SimpleTopBar(
                 currencyCode = currencyCode,
                 onDismiss = { showMenu = false },
                 onSetCurrency = onSetCurrency,
-                onLogout = { showMenu = false; onLogout() }
+                onLogout = { showMenu = false; onLogout() },
+                onChangePassword = { showMenu = false; onChangePassword() },
+                onContact = { showMenu = false; onContact() }
             )
         }
     }
@@ -71,8 +83,12 @@ fun UserMenu(
     currencyCode: String,
     onDismiss: () -> Unit,
     onSetCurrency: (String) -> Unit,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    onChangePassword: () -> Unit = {},
+    onContact: () -> Unit = {}
 ) {
+    val context = LocalContext.current
+    val lang = currentLang()
     DropdownMenu(
         expanded = expanded,
         onDismissRequest = onDismiss,
@@ -82,9 +98,31 @@ fun UserMenu(
         Text(username, fontSize = 13.sp, fontWeight = FontWeight.SemiBold,
             color = DText, modifier = Modifier.padding(horizontal = 14.dp, vertical = 9.dp))
         HorizontalDivider(color = DBorder)
-        Text("CURRENCY", fontSize = 10.sp, fontWeight = FontWeight.Bold,
+        Text(t("dashboard.language").uppercase(), fontSize = 10.sp, fontWeight = FontWeight.Bold,
             letterSpacing = 0.08.sp, color = DText3,
             modifier = Modifier.padding(start = 14.dp, end = 14.dp, top = 10.dp, bottom = 7.dp))
+        Row(
+            modifier = Modifier.padding(start = 12.dp, end = 12.dp, bottom = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            AppLang.entries.forEach { l ->
+                val active = lang == l
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(if (active) DAccent else Color(0x0FFFFFFF))
+                        .border(1.dp, if (active) DAccent else DBorder2, RoundedCornerShape(8.dp))
+                        .clickable { LocaleManager.set(context, l) }
+                        .padding(horizontal = 14.dp, vertical = 7.dp)
+                ) {
+                    Text(l.label, fontSize = 12.sp, fontWeight = FontWeight.SemiBold,
+                        color = if (active) Color.White else DText2)
+                }
+            }
+        }
+        Text(t("dashboard.currency").uppercase(), fontSize = 10.sp, fontWeight = FontWeight.Bold,
+            letterSpacing = 0.08.sp, color = DText3,
+            modifier = Modifier.padding(start = 14.dp, end = 14.dp, top = 4.dp, bottom = 7.dp))
         Row(
             modifier = Modifier.padding(start = 12.dp, end = 12.dp, bottom = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -106,7 +144,18 @@ fun UserMenu(
         }
         HorizontalDivider(color = DBorder)
         DropdownMenuItem(
-            text = { Text("Logout", fontSize = 13.5.sp, color = DRed) },
+            text = { Text(t("dashboard.changePassword"), fontSize = 13.5.sp, color = DText2) },
+            leadingIcon = { Icon(IcLock, null, tint = DText2, modifier = Modifier.size(14.dp)) },
+            onClick = onChangePassword
+        )
+        DropdownMenuItem(
+            text = { Text(t("dashboard.contact"), fontSize = 13.5.sp, color = DText2) },
+            leadingIcon = { Icon(IcHeadset, null, tint = DText2, modifier = Modifier.size(14.dp)) },
+            onClick = onContact
+        )
+        DropdownMenuItem(
+            text = { Text(t("dashboard.logout"), fontSize = 13.5.sp, color = DRed) },
+            leadingIcon = { Icon(IcLogout, null, tint = DRed, modifier = Modifier.size(14.dp)) },
             onClick = onLogout
         )
     }
@@ -115,10 +164,10 @@ fun UserMenu(
 @Composable
 fun AppBottomNav(currentRoute: String, onNavigate: (String) -> Unit) {
     val items = listOf(
-        Triple("dashboard", "Dashboard", IcDashboard),
-        Triple("goals",     "Goals",     IcReceipt),
-        Triple("savings",   "Savings",   IcTarget),
-        Triple("analytics", "Analytics", IcBarChart)
+        Triple("dashboard", t("dashboard.nav.dashboard"), IcDashboard),
+        Triple("goals",     t("dashboard.nav.goals"),     IcReceipt),
+        Triple("savings",   t("dashboard.nav.savings"),   IcTarget),
+        Triple("analytics", t("dashboard.nav.analytics"), IcBarChart)
     )
 
     Row(

@@ -1,5 +1,6 @@
 package com.expenss.tracker.ui.analytics
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -16,14 +17,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.expenss.tracker.i18n.t
 import com.expenss.tracker.ui.dashboard.*
 import com.expenss.tracker.ui.theme.IcBarChart
-import com.expenss.tracker.ui.theme.IcTriangleAlert
 
 @Composable
 fun AnalyticsScreen(
@@ -40,18 +42,25 @@ fun AnalyticsScreen(
 
     val username by vm.username.collectAsState()
     val currency by vm.currency.collectAsState()
+    val isLoading by vm.isLoading.collectAsState()
+    val monthlyTotals by vm.monthlyTotals.collectAsState()
+    val categoryTotals by vm.categoryTotals.collectAsState()
+    val comparisonMonths by vm.comparisonMonths.collectAsState()
+    val totalCurrentPeriod by vm.totalCurrentPeriod.collectAsState()
 
     Box(modifier = Modifier.fillMaxSize().background(DBg)) {
         Column(modifier = Modifier.fillMaxSize()) {
             SimpleTopBar(
-                title = "Analytics",
+                title = t("dashboard.nav.analytics"),
                 username = username,
                 currencyCode = currency,
                 onSetCurrency = { vm.setCurrency(it) },
                 onLogout = {
                     com.expenss.tracker.util.TokenManager(context).clearToken()
                     onLogout()
-                }
+                },
+                onChangePassword = { onNavigate("forgot-password") },
+                onContact = { onNavigate("contact") }
             )
 
             Column(
@@ -59,21 +68,6 @@ fun AnalyticsScreen(
                     .padding(horizontal = 14.dp, vertical = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // Under construction banner
-                Row(
-                    modifier = Modifier.fillMaxWidth()
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0x1AF59E0B))
-                        .border(1.dp, Color(0x26F59E0B), RoundedCornerShape(12.dp))
-                        .padding(horizontal = 14.dp, vertical = 12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    Icon(IcTriangleAlert, null, tint = Color(0xFFFBBF24), modifier = Modifier.size(14.dp))
-                    Text("Under Construction — Charts coming soon!",
-                        fontSize = 13.sp, color = Color(0xFFFBBF24), fontWeight = FontWeight.Medium)
-                }
-
                 // Hero
                 Row(
                     modifier = Modifier.fillMaxWidth()
@@ -81,108 +75,54 @@ fun AnalyticsScreen(
                         .background(DSurface)
                         .border(1.dp, DBorder, RoundedCornerShape(16.dp))
                         .padding(20.dp),
-                    verticalAlignment = Alignment.CenterVertically,
+                    verticalAlignment = Alignment.Top,
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Box(modifier = Modifier.size(52.dp).clip(CircleShape)
+                    Box(modifier = Modifier.size(48.dp).clip(RoundedCornerShape(12.dp))
                         .background(DAccentBg), contentAlignment = Alignment.Center) {
                         Icon(IcBarChart, null, tint = DAccent, modifier = Modifier.size(22.dp))
                     }
-                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Text("Spending Analytics", fontSize = 17.sp,
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Text(t("analytics.heroTitle"), fontSize = 18.sp,
                             fontWeight = FontWeight.Bold, color = DText, letterSpacing = (-0.4).sp)
-                        Text("Visualize your spending trends over time.",
-                            fontSize = 13.sp, color = DText3, lineHeight = 18.sp)
+                        Text(t("analytics.heroSubtitle"),
+                            fontSize = 13.5.sp, color = DText2, lineHeight = 19.sp)
                     }
                 }
 
-                // Preview card: Spending over time
-                PreviewCard(title = "Spending Over Time") {
-                    Row(
-                        modifier = Modifier.fillMaxWidth().height(80.dp),
-                        verticalAlignment = Alignment.Bottom,
-                        horizontalArrangement = Arrangement.SpaceEvenly
-                    ) {
-                        listOf(55, 72, 48, 88, 63, 40).forEachIndexed { i, h ->
-                            Column(horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Bottom) {
-                                Box(modifier = Modifier.width(22.dp)
-                                    .fillMaxHeight(h / 100f)
-                                    .clip(RoundedCornerShape(topStart = 5.dp, topEnd = 5.dp))
-                                    .background(if (i == 5) DAccent else Color(0x3A3B82F6)))
-                                Spacer(Modifier.height(4.dp))
-                                Text(listOf("Jan","Feb","Mar","Apr","May","Jun")[i],
-                                    fontSize = 9.sp, color = DText3)
-                            }
-                        }
+                // Spending Over Time
+                PreviewCard(title = t("analytics.spendingOverTime"), period = t("analytics.last6Months")) {
+                    when {
+                        isLoading -> ChartSkeleton(130.dp)
+                        monthlyTotals.isEmpty() -> NoDataRow()
+                        else -> BarChart(monthlyTotals, currency)
                     }
                 }
 
-                // Preview cards row
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    PreviewCard(title = "Category Breakdown", modifier = Modifier.weight(1f)) {
-                        Box(modifier = Modifier.size(70.dp).clip(CircleShape)
-                            .background(Color(0x1A3B82F6)).align(Alignment.CenterHorizontally)) {
-                            Box(modifier = Modifier.size(50.dp).clip(CircleShape)
-                                .background(DSurface2).align(Alignment.Center)) {
-                                Text("—", fontSize = 14.sp, color = DText3,
-                                    modifier = Modifier.align(Alignment.Center))
-                            }
-                        }
-                        Spacer(Modifier.height(8.dp))
-                        listOf("Food" to Color(0xFFA78BFA), "Housing" to Color(0xFF4ADE80),
-                            "Transport" to Color(0xFF60A5FA)).forEach { (name, color) ->
-                            Row(verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                                Box(modifier = Modifier.size(7.dp).clip(CircleShape).background(color))
-                                Text(name, fontSize = 10.sp, color = DText3)
-                            }
-                        }
-                    }
-
-                    PreviewCard(title = "Top Categories", modifier = Modifier.weight(1f)) {
-                        listOf(
-                            "Food" to 0.72f,
-                            "Housing" to 0.55f,
-                            "Transport" to 0.38f,
-                        ).forEach { (name, pct) ->
-                            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                                Row(modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween) {
-                                    Text(name, fontSize = 10.sp, color = DText2)
-                                    Text("${(pct * 100).toInt()}%", fontSize = 10.sp, color = DText3)
-                                }
-                                Box(modifier = Modifier.fillMaxWidth().height(4.dp)
-                                    .clip(RoundedCornerShape(999.dp)).background(Color(0x14FFFFFF))) {
-                                    Box(modifier = Modifier.fillMaxWidth(pct).height(4.dp)
-                                        .clip(RoundedCornerShape(999.dp)).background(DAccent))
-                                }
-                            }
-                        }
+                // Category Breakdown
+                PreviewCard(title = t("analytics.categoryBreakdown")) {
+                    when {
+                        isLoading -> ChartSkeleton(110.dp)
+                        categoryTotals.isEmpty() -> NoDataRow()
+                        else -> DonutChart(categoryTotals, formatShort(currency, totalCurrentPeriod))
                     }
                 }
 
-                // Monthly comparison
-                PreviewCard(title = "Monthly Comparison") {
-                    listOf("Jun 2026" to 0.80f, "May 2026" to 0.65f, "Apr 2026" to 0.72f).forEach { (month, pct) ->
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(10.dp)
-                        ) {
-                            Text(month, fontSize = 11.sp, color = DText2,
-                                modifier = Modifier.width(64.dp))
-                            Box(modifier = Modifier.weight(1f).height(6.dp)
-                                .clip(RoundedCornerShape(999.dp)).background(Color(0x14FFFFFF))) {
-                                Box(modifier = Modifier.fillMaxWidth(pct).height(6.dp)
-                                    .clip(RoundedCornerShape(999.dp))
-                                    .background(if (month.startsWith("Jun")) DAccent else Color(0x3A3B82F6)))
-                            }
-                            Text("—", fontSize = 11.sp, color = DText3)
-                        }
+                // Top Categories
+                PreviewCard(title = t("analytics.topCategories")) {
+                    when {
+                        isLoading -> ChartSkeleton(80.dp)
+                        categoryTotals.isEmpty() -> NoDataRow()
+                        else -> TopCategoriesList(categoryTotals, currency)
+                    }
+                }
+
+                // Monthly Comparison
+                PreviewCard(title = t("analytics.monthlyComparison")) {
+                    when {
+                        isLoading -> ChartSkeleton(80.dp)
+                        comparisonMonths.isEmpty() -> NoDataRow()
+                        else -> ComparisonRows(comparisonMonths, currency)
                     }
                 }
             }
@@ -195,30 +135,165 @@ fun AnalyticsScreen(
 @Composable
 private fun PreviewCard(
     title: String,
-    modifier: Modifier = Modifier,
+    period: String? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
     Column(
-        modifier = modifier
+        modifier = Modifier
+            .fillMaxWidth()
             .clip(RoundedCornerShape(14.dp))
             .background(DSurface)
             .border(1.dp, DBorder, RoundedCornerShape(14.dp))
-            .padding(14.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(title, fontSize = 13.sp, fontWeight = FontWeight.SemiBold,
-                color = DText, letterSpacing = (-0.2).sp)
-            Box(modifier = Modifier.clip(RoundedCornerShape(999.dp))
-                .background(Color(0x14F59E0B)).padding(horizontal = 8.dp, vertical = 3.dp)) {
-                Text("Soon", fontSize = 10.sp, color = Color(0xFFFBBF24),
-                    fontWeight = FontWeight.SemiBold)
+            Text(title.uppercase(), fontSize = 11.sp, fontWeight = FontWeight.SemiBold,
+                color = DText3, letterSpacing = 0.08.sp)
+            if (period != null) {
+                Text(period, fontSize = 10.5.sp, color = DText3, fontWeight = FontWeight.Medium)
             }
         }
         content()
+    }
+}
+
+@Composable
+private fun ChartSkeleton(height: androidx.compose.ui.unit.Dp) {
+    SkeletonBox(Modifier.fillMaxWidth().height(height), RoundedCornerShape(8.dp))
+}
+
+@Composable
+private fun NoDataRow() {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 20.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Icon(IcBarChart, null, tint = DText3, modifier = Modifier.size(18.dp))
+        Text(t("analytics.noData"), fontSize = 13.sp, color = DText3)
+    }
+}
+
+@Composable
+private fun BarChart(totals: List<PeriodTotal>, currency: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth().height(130.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        totals.forEach { m ->
+            Column(
+                modifier = Modifier.weight(1f).fillMaxHeight(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Bottom
+            ) {
+                val amountLabel = formatShort(currency, m.amount)
+                Text(
+                    amountLabel.ifEmpty { " " },
+                    fontSize = 9.sp, color = DText2, fontWeight = FontWeight.Medium,
+                    maxLines = 1, overflow = TextOverflow.Clip
+                )
+                Spacer(Modifier.height(4.dp))
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(0.55f)
+                        .height((130 * (m.pct / 100f)).dp.coerceAtLeast(2.dp))
+                        .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
+                        .background(if (m.isCurrent) Color(0x8C3B82F6) else Color(0x383B82F6))
+                )
+                Spacer(Modifier.height(6.dp))
+                Text(m.label, fontSize = 10.sp, color = DText3, fontWeight = FontWeight.Medium)
+            }
+        }
+    }
+}
+
+@Composable
+private fun DonutChart(categories: List<CatTotal>, totalLabel: String) {
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(20.dp)) {
+        Box(contentAlignment = Alignment.Center) {
+            Canvas(modifier = Modifier.size(88.dp)) {
+                var startAngle = -90f
+                categories.forEach { c ->
+                    val sweep = (c.pct / 100f) * 360f
+                    drawArc(color = c.color.copy(alpha = 0.45f), startAngle = startAngle, sweepAngle = sweep, useCenter = true)
+                    startAngle += sweep
+                }
+                val remainder = 270f - startAngle
+                if (remainder > 0.5f) {
+                    drawArc(color = Color(0x0FFFFFFF), startAngle = startAngle, sweepAngle = remainder, useCenter = true)
+                }
+            }
+            Box(
+                modifier = Modifier.size(54.dp).clip(CircleShape).background(DSurface),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(totalLabel, fontSize = 10.sp, fontWeight = FontWeight.Bold, color = DText,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center, lineHeight = 12.sp)
+            }
+        }
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            categories.take(5).forEach { c ->
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(c.color))
+                    Text(t("dashboard.cat.${c.key}"), fontSize = 12.sp, color = DText2,
+                        maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.widthIn(max = 90.dp))
+                    Text("${c.pct}%", fontSize = 11.sp, color = DText3, fontWeight = FontWeight.SemiBold)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun TopCategoriesList(categories: List<CatTotal>, currency: String) {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        categories.forEach { c ->
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(c.color))
+                Text(t("dashboard.cat.${c.key}"), fontSize = 12.5.sp, color = DText2,
+                    maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.width(90.dp))
+                Box(
+                    modifier = Modifier.weight(1f).height(5.dp)
+                        .clip(RoundedCornerShape(999.dp)).background(Color(0x0DFFFFFF))
+                ) {
+                    Box(modifier = Modifier.fillMaxWidth(c.pct / 100f).height(5.dp)
+                        .clip(RoundedCornerShape(999.dp)).background(c.color.copy(alpha = 0.55f)))
+                }
+                Text("${c.pct}%", fontSize = 11.5.sp, color = DText3, modifier = Modifier.width(34.dp))
+                Text(formatShort(currency, c.amount), fontSize = 11.5.sp, color = DText2,
+                    fontWeight = FontWeight.Medium, modifier = Modifier.width(48.dp),
+                    textAlign = androidx.compose.ui.text.style.TextAlign.End)
+            }
+        }
+    }
+}
+
+@Composable
+private fun ComparisonRows(months: List<PeriodTotal>, currency: String) {
+    Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        months.forEach { m ->
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(m.label, fontSize = 12.5.sp,
+                    color = if (m.isCurrent) DAccent else DText2,
+                    fontWeight = if (m.isCurrent) FontWeight.SemiBold else FontWeight.Normal,
+                    modifier = Modifier.width(64.dp))
+                Box(
+                    modifier = Modifier.weight(1f).height(8.dp)
+                        .clip(RoundedCornerShape(999.dp)).background(Color(0x0DFFFFFF))
+                ) {
+                    Box(modifier = Modifier.fillMaxWidth(m.pct / 100f).height(8.dp)
+                        .clip(RoundedCornerShape(999.dp))
+                        .background(if (m.isCurrent) Color(0x8C3B82F6) else Color(0x14FFFFFF)))
+                }
+                Text(formatAmount(currency, m.amount), fontSize = 12.sp, color = DText2,
+                    fontWeight = FontWeight.Medium, modifier = Modifier.width(72.dp),
+                    textAlign = androidx.compose.ui.text.style.TextAlign.End)
+            }
+        }
     }
 }

@@ -45,6 +45,7 @@ import com.expenss.tracker.ui.dashboard.currencySymbol
 import com.expenss.tracker.ui.dashboard.formatAmount
 import com.expenss.tracker.ui.dashboard.SimpleTopBar
 import com.expenss.tracker.ui.dashboard.StyledField
+import com.expenss.tracker.i18n.t
 import com.expenss.tracker.ui.theme.IcCheck
 import com.expenss.tracker.ui.theme.IcClock
 import com.expenss.tracker.ui.theme.IcClose
@@ -102,14 +103,16 @@ fun GoalsScreen(
     Box(modifier = Modifier.fillMaxSize().background(DBg)) {
         Column(modifier = Modifier.fillMaxSize()) {
             SimpleTopBar(
-                title = "Goals",
+                title = t("dashboard.nav.goals"),
                 username = username,
                 currencyCode = currency,
                 onSetCurrency = { vm.setCurrency(it) },
                 onLogout = {
                     com.expenss.tracker.util.TokenManager(context).clearToken()
                     onLogout()
-                }
+                },
+                onChangePassword = { onNavigate("forgot-password") },
+                onContact = { onNavigate("contact") }
             )
 
             Column(
@@ -134,9 +137,9 @@ fun GoalsScreen(
                             )
                             Icon(IcTarget, null, tint = DText3, modifier = Modifier.size(40.dp))
                         }
-                        Text("No dream goal set", fontSize = 18.sp, fontWeight = FontWeight.Bold,
+                        Text(t("goals.emptyTitle"), fontSize = 18.sp, fontWeight = FontWeight.Bold,
                             color = DText, letterSpacing = (-0.4).sp)
-                        Text("Set a savings target and track your progress",
+                        Text(t("goals.emptyDesc"),
                             fontSize = 13.sp, color = DText3)
                         Spacer(Modifier.height(4.dp))
                         Button(
@@ -150,7 +153,7 @@ fun GoalsScreen(
                             shape = RoundedCornerShape(14.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = DAccent)
                         ) {
-                            Text("+ Add Goal", fontSize = 14.sp, fontWeight = FontWeight.SemiBold,
+                            Text("+ ${t("goals.addGoal")}", fontSize = 14.sp, fontWeight = FontWeight.SemiBold,
                                 color = Color.White)
                         }
                     }
@@ -166,7 +169,7 @@ fun GoalsScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Icon(IcWallet, null, tint = DText2, modifier = Modifier.size(14.dp))
-                        Text("Savings pool", fontSize = 12.sp, color = DText2,
+                        Text(t("goals.savingsPool"), fontSize = 12.sp, color = DText2,
                             modifier = Modifier.weight(1f))
                         Text(formatAmount(currency, totalSavings), fontSize = 14.sp,
                             fontWeight = FontWeight.Bold, color = DText)
@@ -202,7 +205,7 @@ fun GoalsScreen(
                                             fontWeight = FontWeight.ExtraBold,
                                             color = if (funded) Color(0xFF4ADE80) else DText,
                                             letterSpacing = (-0.5).sp)
-                                        Text(if (funded) "Funded" else "of goal",
+                                        Text(if (funded) t("goals.funded") else t("goals.ringSubLabel"),
                                             fontSize = 8.5.sp, color = DText3)
                                     }
                                 }
@@ -220,7 +223,7 @@ fun GoalsScreen(
                                             horizontalArrangement = Arrangement.spacedBy(4.dp)
                                         ) {
                                             Icon(IcCheck, null, tint = Color(0xFF4ADE80), modifier = Modifier.size(11.dp))
-                                            Text("Funded", fontSize = 11.sp,
+                                            Text(t("goals.funded"), fontSize = 11.sp,
                                                 color = Color(0xFF4ADE80), fontWeight = FontWeight.SemiBold)
                                         }
                                     } else {
@@ -230,21 +233,21 @@ fun GoalsScreen(
                                                 .background(DAccentBg)
                                                 .padding(horizontal = 10.dp, vertical = 4.dp)
                                         ) {
-                                            Text("Dream Goal", fontSize = 11.sp,
+                                            Text(t("goals.dreamItemLabel"), fontSize = 11.sp,
                                                 color = DAccent, fontWeight = FontWeight.SemiBold)
                                         }
                                     }
                                     Text(dream!!.name, fontSize = 18.sp, fontWeight = FontWeight.Bold,
                                         color = DText, letterSpacing = (-0.4).sp)
                                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                        SmallActionBtn("Edit", DAccentBg, DAccent, icon = IcEdit) {
+                                        SmallActionBtn(t("goals.editGoal"), DAccentBg, DAccent, icon = IcEdit) {
                                             isEditing = true
                                             nameInput = dream!!.name
                                             targetInput = dream!!.target_amount.toLong().toString()
                                             nameError = false; targetError = false
                                             showModal = true
                                         }
-                                        SmallActionBtn("Delete", Color(0x1AEF4444), DRed, icon = IcTrash) {
+                                        SmallActionBtn(t("goals.deleteTitle"), Color(0x1AEF4444), DRed, icon = IcTrash) {
                                             showDeleteConfirm = true
                                         }
                                     }
@@ -258,14 +261,14 @@ fun GoalsScreen(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceAround
                             ) {
-                                GoalStat("Saved", formatAmount(currency, totalSavings),
+                                GoalStat(t("goals.saved"), formatAmount(currency, totalSavings),
                                     if (funded) Color(0xFF4ADE80) else DText)
                                 Box(modifier = Modifier.width(1.dp).height(36.dp).background(DBorder))
-                                GoalStat("Remaining",
+                                GoalStat(t("goals.remaining"),
                                     if (funded) "—" else formatAmount(currency, dream!!.target_amount - totalSavings),
                                     DText)
                                 Box(modifier = Modifier.width(1.dp).height(36.dp).background(DBorder))
-                                GoalStat("Target", formatAmount(currency, dream!!.target_amount), DText2)
+                                GoalStat(t("goals.target"), formatAmount(currency, dream!!.target_amount), DText2)
                             }
 
                             // Estimation banner
@@ -280,13 +283,13 @@ fun GoalsScreen(
                                 ) {
                                     Icon(IcClock, null, tint = DText2, modifier = Modifier.size(14.dp))
                                     Column {
-                                        Text("Estimated completion",
+                                        Text(t("goals.estTimeLabel"),
                                             fontSize = 11.sp, color = DText3)
                                         Text(completionEstimate(), fontSize = 14.sp,
                                             fontWeight = FontWeight.SemiBold, color = DText)
                                     }
                                 }
-                                Text("Based on your average monthly savings",
+                                Text(t("goals.estTimeHint"),
                                     fontSize = 11.sp, color = DText3)
                             }
                         }
@@ -317,20 +320,20 @@ fun GoalsScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(if (isEditing) "Edit Goal" else "Add Goal",
+                    Text(if (isEditing) t("goals.editGoal") else t("goals.addGoal"),
                         fontSize = 17.sp, fontWeight = FontWeight.Bold, color = DText)
                     IconButton(onClick = { showModal = false }, modifier = Modifier.size(30.dp)) {
                         Icon(IcClose, "Close", tint = DText2, modifier = Modifier.size(14.dp))
                     }
                 }
-                FieldLabel("Goal name")
+                FieldLabel(t("goals.goalName"))
                 StyledField(
                     value = nameInput, onValueChange = { nameInput = it; nameError = false },
-                    placeholder = "e.g. New laptop", isError = nameError
+                    placeholder = t("goals.namePlaceholder"), isError = nameError
                 )
-                if (nameError) FieldError("Name is required")
+                if (nameError) FieldError(t("goals.nameRequired"))
 
-                FieldLabel("Target amount")
+                FieldLabel(t("goals.targetAmount"))
                 StyledField(
                     value = targetInput,
                     onValueChange = { targetInput = it.filter { c -> c.isDigit() || c == '.' }; targetError = false },
@@ -338,7 +341,7 @@ fun GoalsScreen(
                     keyboardType = KeyboardType.Decimal,
                     prefix = currencySymbol(currency)
                 )
-                if (targetError) FieldError("Enter a valid amount")
+                if (targetError) FieldError(t("goals.amountRequired"))
 
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     Button(
@@ -346,7 +349,7 @@ fun GoalsScreen(
                         modifier = Modifier.weight(1f).height(48.dp),
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = DSurface2)
-                    ) { Text("Cancel", color = DText2, fontSize = 14.sp) }
+                    ) { Text(t("dashboard.form.cancel"), color = DText2, fontSize = 14.sp) }
                     Button(
                         onClick = {
                             nameError = nameInput.isBlank()
@@ -363,7 +366,7 @@ fun GoalsScreen(
                         modifier = Modifier.weight(1f).height(48.dp),
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = DAccent)
-                    ) { Text(if (isEditing) "Update" else "Save", color = Color.White, fontSize = 14.sp,
+                    ) { Text(if (isEditing) t("goals.updateGoal") else t("goals.saveGoal"), color = Color.White, fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold) }
                 }
             }
@@ -375,16 +378,16 @@ fun GoalsScreen(
         AlertDialog(
             onDismissRequest = { showDeleteConfirm = false },
             containerColor = DSurface, shape = RoundedCornerShape(18.dp),
-            title = { Text("Delete goal?", color = DText, fontWeight = FontWeight.Bold, fontSize = 16.sp) },
-            text = { Text("Delete \"${dream?.name}\"? This cannot be undone.", color = DText2,
+            title = { Text(t("goals.deleteTitle"), color = DText, fontWeight = FontWeight.Bold, fontSize = 16.sp) },
+            text = { Text("${t("goals.deleteDesc")} \"${dream?.name}\"?", color = DText2,
                 fontSize = 13.5.sp, lineHeight = 20.sp) },
             confirmButton = {
                 TextButton(onClick = {
                     vm.deleteDream(); showDeleteConfirm = false
-                }) { Text("Delete", color = DRed, fontWeight = FontWeight.SemiBold) }
+                }) { Text(t("dashboard.delete"), color = DRed, fontWeight = FontWeight.SemiBold) }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteConfirm = false }) { Text("Cancel", color = DText2) }
+                TextButton(onClick = { showDeleteConfirm = false }) { Text(t("dashboard.cancel"), color = DText2) }
             }
         )
     }

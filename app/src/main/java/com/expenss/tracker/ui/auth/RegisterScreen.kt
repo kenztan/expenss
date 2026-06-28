@@ -3,6 +3,7 @@ package com.expenss.tracker.ui.auth
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,6 +25,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.expenss.tracker.i18n.t
 import com.expenss.tracker.ui.theme.*
 
 @Composable
@@ -68,26 +70,26 @@ fun RegisterScreen(
 
     // Validation
     val usernameError = when {
-        username.isEmpty() -> "Username is required"
-        username.length < 3 -> "At least 3 characters"
-        username.contains(' ') -> "No spaces allowed"
+        username.isEmpty() -> t("signup.usernameRequired")
+        username.length < 3 -> t("signup.usernameMinLength")
+        username.contains(' ') -> t("signup.usernameNoSpaces")
         else -> null
     }
     val emailError = when {
-        email.isEmpty() -> "Email is required"
-        !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches() -> "Enter a valid email"
+        email.isEmpty() -> t("signup.emailRequired")
+        !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches() -> t("signup.emailInvalid")
         else -> null
     }
     val passwordError = when {
-        password.isEmpty() -> "Password is required"
-        password.length < 8 -> "At least 8 characters"
+        password.isEmpty() -> t("signup.passwordRequired")
+        password.length < 8 -> t("signup.passwordMinLength")
         !password.any { it.isUpperCase() } || !password.any { it.isDigit() } ->
-            "Must include uppercase letter and number"
+            t("signup.passwordWeak")
         else -> null
     }
     val confirmError = when {
-        confirmPassword.isEmpty() -> "Please confirm your password"
-        confirmPassword != password -> "Passwords do not match"
+        confirmPassword.isEmpty() -> t("signup.confirmPasswordRequired")
+        confirmPassword != password -> t("signup.passwordMismatch")
         else -> null
     }
 
@@ -109,13 +111,14 @@ fun RegisterScreen(
         vm.register(username.trim(), email.trim(), password)
     }
 
-    val bg     = Color(0xFF0B0D14)
-    val bg2    = Color(0xFF161C2E)
-    val text   = Color(0xFFDDE3F5)
-    val text2  = Color(0xFF7880A0)
-    val text3  = Color(0xFF404A68)
-    val border = Color(0x14FFFFFF)
-    val border2 = Color(0x20FFFFFF)
+    val isDark = isSystemInDarkTheme()
+    val bg = if (isDark) BgDark else BgLight
+    val bg2 = if (isDark) Bg2Dark else Bg2Light
+    val text = if (isDark) TextDark else TextLight
+    val text2 = if (isDark) Text2Dark else Text2Light
+    val text3 = if (isDark) Text3Dark else Text3Light
+    val border = if (isDark) Color(0x14FFFFFF) else Color(0x14000000)
+    val border2 = if (isDark) Color(0x20FFFFFF) else Color(0x20000000)
     val errorRed = Color(0xFFE24B4A)
 
     Box(modifier = Modifier.fillMaxSize().background(bg).imePadding(), contentAlignment = Alignment.Center) {
@@ -134,17 +137,17 @@ fun RegisterScreen(
                 ) {
                     Text("✉", fontSize = 28.sp)
                 }
-                Text("Check your email", fontSize = 22.sp, fontWeight = FontWeight.SemiBold,
+                Text(t("signup.checkEmailTitle"), fontSize = 22.sp, fontWeight = FontWeight.SemiBold,
                     color = text, letterSpacing = (-0.5).sp)
-                Text("We sent a verification link to $email.\nClick it to activate your account.",
+                Text(t("signup.checkEmailDesc"),
                     fontSize = 14.sp, color = text2, lineHeight = 22.sp,
                     textAlign = androidx.compose.ui.text.style.TextAlign.Center)
-                Text("Check your spam folder if you don't see it.",
+                Text(t("signup.checkEmailHint"),
                     fontSize = 12.sp, color = text3,
                     textAlign = androidx.compose.ui.text.style.TextAlign.Center)
                 Spacer(Modifier.height(8.dp))
                 TextButton(onClick = onNavigateToLogin) {
-                    Text("Back to Sign in", fontSize = 14.sp, color = Accent,
+                    Text(t("signup.backToLogin"), fontSize = 14.sp, color = Accent,
                         fontWeight = FontWeight.Medium)
                 }
             }
@@ -166,10 +169,10 @@ fun RegisterScreen(
                     .border(0.5.dp, border, RoundedCornerShape(14.dp))
                     .padding(horizontal = 28.dp, vertical = 32.dp)
             ) {
-                Text("Create account", fontSize = 22.sp, fontWeight = FontWeight.SemiBold,
+                Text(t("signup.title"), fontSize = 22.sp, fontWeight = FontWeight.SemiBold,
                     color = text, letterSpacing = (-0.5).sp)
                 Spacer(Modifier.height(6.dp))
-                Text("Sign up for Expenss", fontSize = 14.sp,
+                Text(t("signup.subtitle"), fontSize = 14.sp,
                     color = text2, fontWeight = FontWeight.Light)
                 Spacer(Modifier.height(24.dp))
 
@@ -194,12 +197,12 @@ fun RegisterScreen(
                 }
 
                 // Username
-                FieldLabel("Username", text2)
+                FieldLabel(t("signup.usernameLabel"), text2)
                 Spacer(Modifier.height(6.dp))
                 AuthField(
                     value = username,
                     onValueChange = { username = it; touchedUsername = true },
-                    placeholder = "username",
+                    placeholder = t("signup.usernamePlaceholder"),
                     isError = touchedUsername && usernameError != null,
                     text = text, text3 = text3, bg2 = bg2, border2 = border2
                 )
@@ -209,12 +212,12 @@ fun RegisterScreen(
                 Spacer(Modifier.height(16.dp))
 
                 // Email
-                FieldLabel("Email", text2)
+                FieldLabel(t("signup.emailLabel"), text2)
                 Spacer(Modifier.height(6.dp))
                 AuthField(
                     value = email,
                     onValueChange = { email = it; touchedEmail = true },
-                    placeholder = "you@example.com",
+                    placeholder = t("signup.emailPlaceholder"),
                     keyboardType = KeyboardType.Email,
                     isError = touchedEmail && emailError != null,
                     text = text, text3 = text3, bg2 = bg2, border2 = border2
@@ -225,12 +228,12 @@ fun RegisterScreen(
                 Spacer(Modifier.height(16.dp))
 
                 // Password
-                FieldLabel("Password", text2)
+                FieldLabel(t("signup.passwordLabel"), text2)
                 Spacer(Modifier.height(6.dp))
                 AuthField(
                     value = password,
                     onValueChange = { password = it; touchedPassword = true },
-                    placeholder = "••••••••",
+                    placeholder = t("signup.passwordPlaceholder"),
                     isPassword = true,
                     passwordVisible = passwordVisible,
                     onTogglePassword = { passwordVisible = !passwordVisible },
@@ -242,9 +245,9 @@ fun RegisterScreen(
                     Spacer(Modifier.height(8.dp))
                     val strength = passwordStrength()
                     val (strengthColor, strengthLabel) = when (strength) {
-                        "strong" -> Color(0xFF4ADE80) to "Strong"
-                        "medium" -> Color(0xFFFBBF24) to "Medium"
-                        else     -> errorRed to "Weak"
+                        "strong" -> Color(0xFF4ADE80) to t("signup.strengthStrong")
+                        "medium" -> Color(0xFFFBBF24) to t("signup.strengthMedium")
+                        else     -> errorRed to t("signup.strengthWeak")
                     }
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -270,12 +273,12 @@ fun RegisterScreen(
                 Spacer(Modifier.height(16.dp))
 
                 // Confirm password
-                FieldLabel("Confirm password", text2)
+                FieldLabel(t("signup.confirmPasswordLabel"), text2)
                 Spacer(Modifier.height(6.dp))
                 AuthField(
                     value = confirmPassword,
                     onValueChange = { confirmPassword = it; touchedConfirmPassword = true },
-                    placeholder = "••••••••",
+                    placeholder = t("signup.confirmPasswordPlaceholder"),
                     isPassword = true,
                     passwordVisible = confirmPasswordVisible,
                     onTogglePassword = { confirmPasswordVisible = !confirmPasswordVisible },
@@ -301,11 +304,12 @@ fun RegisterScreen(
                             checkmarkColor = Color.White
                         )
                     )
-                    Text("I agree to the Terms of Service and Privacy Policy",
+                    Text(
+                        "${t("signup.termsAgree")} ${t("signup.termsOfService")} ${t("signup.and")} ${t("signup.privacyPolicy")}",
                         fontSize = 13.sp, color = text2, lineHeight = 19.sp)
                 }
                 if (touchedTerms && !agreedToTerms) {
-                    FieldErrorText("You must agree to continue", errorRed)
+                    FieldErrorText(t("signup.termsRequired"), errorRed)
                 }
                 Spacer(Modifier.height(20.dp))
 
@@ -321,7 +325,7 @@ fun RegisterScreen(
                         CircularProgressIndicator(modifier = Modifier.size(18.dp),
                             color = Color.White, strokeWidth = 2.dp)
                     } else {
-                        Text("Create account", fontSize = 14.sp,
+                        Text(t("signup.createAccount"), fontSize = 14.sp,
                             fontWeight = FontWeight.Medium, color = Color.White)
                     }
                 }
@@ -329,9 +333,9 @@ fun RegisterScreen(
 
             Spacer(Modifier.height(20.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("Already have an account? ", fontSize = 13.sp, color = text3)
+                Text("${t("signup.hasAccount")} ", fontSize = 13.sp, color = text3)
                 TextButton(onClick = onNavigateToLogin, contentPadding = PaddingValues(0.dp)) {
-                    Text("Sign in", fontSize = 13.sp, color = Accent, fontWeight = FontWeight.Medium)
+                    Text(t("signup.signIn"), fontSize = 13.sp, color = Accent, fontWeight = FontWeight.Medium)
                 }
             }
         }

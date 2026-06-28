@@ -25,6 +25,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.expenss.tracker.data.network.Saving
+import com.expenss.tracker.i18n.t
 import com.expenss.tracker.ui.dashboard.*
 import com.expenss.tracker.ui.dashboard.SkeletonSavingsRows
 import com.expenss.tracker.ui.dashboard.SkeletonSavingsStats
@@ -69,14 +70,16 @@ fun SavingsScreen(
     Box(modifier = Modifier.fillMaxSize().background(DBg)) {
         Column(modifier = Modifier.fillMaxSize()) {
             SimpleTopBar(
-                title = "Savings",
+                title = t("dashboard.nav.savings"),
                 username = username,
                 currencyCode = currency,
                 onSetCurrency = { vm.setCurrency(it) },
                 onLogout = {
                     com.expenss.tracker.util.TokenManager(context).clearToken()
                     onLogout()
-                }
+                },
+                onChangePassword = { onNavigate("forgot-password") },
+                onContact = { onNavigate("contact") }
             )
 
             LazyColumn(
@@ -95,16 +98,16 @@ fun SavingsScreen(
                         ) {
                             SavingsStatCard(
                                 modifier = Modifier.weight(1f),
-                                label = "Total Savings",
+                                label = t("savings.totalSavings"),
                                 value = formatAmount(currency, totalSavings + monthlyRemaining),
-                                sub = "Includes remaining",
+                                sub = t("savings.includesRemaining"),
                                 valueColor = Color(0xFF4ADE80)
                             )
                             SavingsStatCard(
                                 modifier = Modifier.weight(1f),
-                                label = "This Month Remaining",
+                                label = t("savings.thisMonthRemaining"),
                                 value = formatAmount(currency, monthlyRemaining),
-                                sub = "Auto from budget",
+                                sub = t("savings.autoFromBudget"),
                                 valueColor = Color(0xFF60A5FA)
                             )
                         }
@@ -121,7 +124,7 @@ fun SavingsScreen(
                                 .padding(14.dp)
                             ) {
                                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                    Text("Monthly Commitment", fontSize = 11.sp, color = DText3)
+                                    Text(t("savings.monthlyCommitment"), fontSize = 11.sp, color = DText3)
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically,
                                         horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -134,14 +137,14 @@ fun SavingsScreen(
                                             modifier = Modifier.size(28.dp)
                                         ) { Icon(IcEdit, null, tint = DAccent, modifier = Modifier.size(14.dp)) }
                                     }
-                                    Text("Savings target per month", fontSize = 11.sp, color = DText3)
+                                    Text(t("savings.commitmentDesc"), fontSize = 11.sp, color = DText3)
                                 }
                             }
                             SavingsStatCard(
                                 modifier = Modifier.weight(1f),
-                                label = "Avg Monthly Savings",
+                                label = t("savings.avgMonthlySavings"),
                                 value = formatAmount(currency, avgMonthly),
-                                sub = "Historical average",
+                                sub = t("savings.avgDesc"),
                                 valueColor = DText
                             )
                         }
@@ -158,10 +161,10 @@ fun SavingsScreen(
                             .padding(16.dp)
                     ) {
                         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                            Text("Log Savings", fontSize = 14.sp, fontWeight = FontWeight.SemiBold,
+                            Text(t("savings.logSavings"), fontSize = 14.sp, fontWeight = FontWeight.SemiBold,
                                 color = DText, letterSpacing = (-0.2).sp)
 
-                            FieldLabel("Amount")
+                            FieldLabel(t("savings.amount"))
                             StyledField(
                                 value = amountInput,
                                 onValueChange = { amountInput = it.filter { c -> c.isDigit() || c == '.' } },
@@ -170,7 +173,7 @@ fun SavingsScreen(
                                 prefix = currencySymbol(currency)
                             )
 
-                            FieldLabel("Date")
+                            FieldLabel(t("savings.date"))
                             Row(
                                 modifier = Modifier.fillMaxWidth()
                                     .clip(RoundedCornerShape(12.dp))
@@ -187,13 +190,13 @@ fun SavingsScreen(
                             }
 
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                FieldLabel("Note")
+                                FieldLabel(t("savings.note"))
                                 Spacer(Modifier.width(6.dp))
-                                Text("optional", fontSize = 11.sp, color = DText3)
+                                Text(t("dashboard.form.optional"), fontSize = 11.sp, color = DText3)
                             }
                             StyledField(
                                 value = noteInput, onValueChange = { noteInput = it },
-                                placeholder = "Add a note", isError = false
+                                placeholder = t("savings.notePlaceholder"), isError = false
                             )
 
                             Button(
@@ -214,7 +217,7 @@ fun SavingsScreen(
                                     CircularProgressIndicator(color = Color.White,
                                         strokeWidth = 2.dp, modifier = Modifier.size(18.dp))
                                 } else {
-                                    Text("+ Add Record", fontSize = 14.sp,
+                                    Text("+ ${t("savings.addRecord")}", fontSize = 14.sp,
                                         fontWeight = FontWeight.SemiBold, color = Color.White)
                                 }
                             }
@@ -228,7 +231,7 @@ fun SavingsScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Text("HISTORY", fontSize = 11.sp, fontWeight = FontWeight.SemiBold,
+                        Text(t("savings.history").uppercase(), fontSize = 11.sp, fontWeight = FontWeight.SemiBold,
                             color = DText3, letterSpacing = 0.1.sp)
                         if (records.isNotEmpty()) {
                             Box(modifier = Modifier.clip(RoundedCornerShape(999.dp))
@@ -258,9 +261,9 @@ fun SavingsScreen(
                                 Icon(IcWallet, null, tint = DText3, modifier = Modifier.size(24.dp))
                             }
                             Spacer(Modifier.height(4.dp))
-                            Text("No savings records yet", fontSize = 15.sp,
+                            Text(t("savings.emptyTitle"), fontSize = 15.sp,
                                 fontWeight = FontWeight.SemiBold, color = DText)
-                            Text("Log your first savings to get started",
+                            Text(t("savings.emptyDesc"),
                                 fontSize = 13.sp, color = DText3)
                         }
                     }
@@ -313,15 +316,15 @@ fun SavingsScreen(
                 Row(modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically) {
-                    Text("Set Monthly Commitment", fontSize = 16.sp,
+                    Text(t("savings.setCommitment"), fontSize = 16.sp,
                         fontWeight = FontWeight.Bold, color = DText)
                     IconButton(onClick = { showCommitmentModal = false }, modifier = Modifier.size(30.dp)) {
                         Icon(IcClose, null, tint = DText2, modifier = Modifier.size(14.dp))
                     }
                 }
-                Text("Set how much you commit to save each month.",
+                Text(t("savings.commitmentDesc"),
                     fontSize = 13.sp, color = DText3, lineHeight = 19.sp)
-                FieldLabel("Monthly amount")
+                FieldLabel(t("savings.monthlyAmount"))
                 StyledField(
                     value = commitmentInput,
                     onValueChange = { commitmentInput = it.filter { c -> c.isDigit() || c == '.' } },
@@ -335,7 +338,7 @@ fun SavingsScreen(
                         modifier = Modifier.weight(1f).height(48.dp),
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = DSurface2)
-                    ) { Text("Cancel", color = DText2, fontSize = 14.sp) }
+                    ) { Text(t("dashboard.form.cancel"), color = DText2, fontSize = 14.sp) }
                     Button(
                         onClick = {
                             val amt = commitmentInput.toDoubleOrNull()
@@ -346,7 +349,7 @@ fun SavingsScreen(
                         modifier = Modifier.weight(1f).height(48.dp),
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = DAccent)
-                    ) { Text("Save", color = Color.White, fontSize = 14.sp,
+                    ) { Text(t("savings.save"), color = Color.White, fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold) }
                 }
             }
@@ -358,16 +361,16 @@ fun SavingsScreen(
         AlertDialog(
             onDismissRequest = { recordToDelete = null },
             containerColor = DSurface, shape = RoundedCornerShape(18.dp),
-            title = { Text("Delete record?", color = DText, fontWeight = FontWeight.Bold, fontSize = 16.sp) },
-            text = { Text("Delete savings record of ${formatAmount(currency, rec.amount)}?",
+            title = { Text(t("savings.deleteTitle"), color = DText, fontWeight = FontWeight.Bold, fontSize = 16.sp) },
+            text = { Text("${t("savings.deleteDesc")} ${formatAmount(currency, rec.amount)}?",
                 color = DText2, fontSize = 13.5.sp) },
             confirmButton = {
                 TextButton(onClick = { vm.deleteSaving(rec.id); recordToDelete = null }) {
-                    Text("Delete", color = DRed, fontWeight = FontWeight.SemiBold)
+                    Text(t("dashboard.delete"), color = DRed, fontWeight = FontWeight.SemiBold)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { recordToDelete = null }) { Text("Cancel", color = DText2) }
+                TextButton(onClick = { recordToDelete = null }) { Text(t("dashboard.cancel"), color = DText2) }
             }
         )
     }
@@ -405,7 +408,7 @@ private fun SavingsRecordRow(record: Saving, amount: String, onDelete: () -> Uni
             Icon(IcWallet, null, tint = Color(0xFFA78BFA), modifier = Modifier.size(18.dp))
         }
         Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-            Text(record.note?.takeIf { it.isNotBlank() } ?: "Savings Deposit", fontSize = 14.sp,
+            Text(record.note?.takeIf { it.isNotBlank() } ?: t("savings.savingsDeposit"), fontSize = 14.sp,
                 fontWeight = FontWeight.Medium, color = DText)
             Text(formatSavingsDate(record.date), fontSize = 11.sp, color = DText3)
         }

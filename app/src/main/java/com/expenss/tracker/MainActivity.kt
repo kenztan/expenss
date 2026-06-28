@@ -5,14 +5,21 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.*
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
+import com.expenss.tracker.i18n.LocaleManager
 import com.expenss.tracker.ui.analytics.AnalyticsScreen
 import com.expenss.tracker.ui.auth.ForgotPasswordScreen
 import com.expenss.tracker.ui.auth.LoginScreen
 import com.expenss.tracker.ui.auth.OnboardingScreen
 import com.expenss.tracker.ui.auth.RegisterScreen
+import com.expenss.tracker.ui.auth.ResetPasswordScreen
+import com.expenss.tracker.ui.auth.VerifyEmailScreen
+import com.expenss.tracker.ui.contact.ContactScreen
 import com.expenss.tracker.ui.dashboard.DashboardScreen
 import com.expenss.tracker.ui.goals.GoalsScreen
 import com.expenss.tracker.ui.savings.SavingsScreen
@@ -23,6 +30,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        LocaleManager.init(this)
         setContent {
             ExpenssTheme {
                 val navController = rememberNavController()
@@ -75,6 +83,58 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                         )
+                    }
+
+                    composable(
+                        "reset-password?token={token}",
+                        arguments = listOf(navArgument("token") {
+                            type = NavType.StringType; nullable = true; defaultValue = null
+                        }),
+                        deepLinks = listOf(navDeepLink {
+                            uriPattern = "https://expenss.online/auth/reset-pass?token={token}"
+                        })
+                    ) { backStackEntry ->
+                        ResetPasswordScreen(
+                            token = backStackEntry.arguments?.getString("token"),
+                            onNavigateToLogin = {
+                                navController.navigate("login") {
+                                    popUpTo(0) { inclusive = true }
+                                }
+                            },
+                            onNavigateToForgotPassword = {
+                                navController.navigate("forgot-password") {
+                                    popUpTo("reset-password?token={token}") { inclusive = true }
+                                }
+                            }
+                        )
+                    }
+
+                    composable(
+                        "verify-email?token={token}",
+                        arguments = listOf(navArgument("token") {
+                            type = NavType.StringType; nullable = true; defaultValue = null
+                        }),
+                        deepLinks = listOf(navDeepLink {
+                            uriPattern = "https://expenss.online/auth/verify-email?token={token}"
+                        })
+                    ) { backStackEntry ->
+                        VerifyEmailScreen(
+                            token = backStackEntry.arguments?.getString("token"),
+                            onNavigateToLogin = {
+                                navController.navigate("login") {
+                                    popUpTo(0) { inclusive = true }
+                                }
+                            },
+                            onNavigateToSignup = {
+                                navController.navigate("register") {
+                                    popUpTo(0) { inclusive = true }
+                                }
+                            }
+                        )
+                    }
+
+                    composable("contact") {
+                        ContactScreen(onNavigateBack = { navController.popBackStack() })
                     }
 
                     composable("dashboard") {

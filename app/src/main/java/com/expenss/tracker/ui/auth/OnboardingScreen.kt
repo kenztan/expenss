@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -26,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.expenss.tracker.i18n.t
 import com.expenss.tracker.ui.theme.*
 
 @Composable
@@ -55,12 +57,13 @@ fun OnboardingScreen(onDone: () -> Unit) {
         }
     }
 
-    val bg    = Color(0xFF0B0D14)
-    val bg2   = Color(0xFF161C2E)
-    val text  = Color(0xFFDDE3F5)
-    val text2 = Color(0xFF7880A0)
-    val text3 = Color(0xFF404A68)
-    val borderNormal = Color(0x20FFFFFF)
+    val isDark = isSystemInDarkTheme()
+    val bg = if (isDark) BgDark else BgLight
+    val bg2 = if (isDark) Bg2Dark else Bg2Light
+    val text = if (isDark) TextDark else TextLight
+    val text2 = if (isDark) Text2Dark else Text2Light
+    val text3 = if (isDark) Text3Dark else Text3Light
+    val borderNormal = if (isDark) Color(0x20FFFFFF) else Color(0x20000000)
     val errorRed = Color(0xFFE24B4A)
 
     Box(modifier = Modifier.fillMaxSize().background(bg), contentAlignment = Alignment.Center) {
@@ -76,7 +79,7 @@ fun OnboardingScreen(onDone: () -> Unit) {
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(14.dp))
                     .background(bg)
-                    .border(0.5.dp, Color(0x14FFFFFF), RoundedCornerShape(14.dp))
+                    .border(0.5.dp, if (isDark) Color(0x14FFFFFF) else Color(0x14000000), RoundedCornerShape(14.dp))
                     .padding(horizontal = 28.dp, vertical = 36.dp)
             ) {
 
@@ -84,12 +87,12 @@ fun OnboardingScreen(onDone: () -> Unit) {
                 if (step == 1) {
                     StepIcon(icon = IcClock)
                     Spacer(Modifier.height(16.dp))
-                    Text("Choose your currency", fontSize = 22.sp,
+                    Text(t("onboarding.step0Title"), fontSize = 22.sp,
                         fontWeight = FontWeight.SemiBold, color = text,
                         letterSpacing = (-0.5).sp, textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth())
                     Spacer(Modifier.height(6.dp))
-                    Text("Pick the currency you use for daily spending",
+                    Text(t("onboarding.step0Subtitle"),
                         fontSize = 14.sp, color = text2, fontWeight = FontWeight.Light,
                         textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
                     Spacer(Modifier.height(28.dp))
@@ -150,12 +153,12 @@ fun OnboardingScreen(onDone: () -> Unit) {
                 if (step == 2) {
                     StepIcon(icon = IcBarChart)
                     Spacer(Modifier.height(16.dp))
-                    Text("How do you track spending?", fontSize = 22.sp,
+                    Text(t("onboarding.step1Title"), fontSize = 22.sp,
                         fontWeight = FontWeight.SemiBold, color = text,
                         letterSpacing = (-0.5).sp, textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth())
                     Spacer(Modifier.height(6.dp))
-                    Text("Choose the tracking period that fits your pay schedule",
+                    Text(t("onboarding.step1Subtitle"),
                         fontSize = 14.sp, color = text2, fontWeight = FontWeight.Light,
                         textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
                     Spacer(Modifier.height(28.dp))
@@ -166,10 +169,10 @@ fun OnboardingScreen(onDone: () -> Unit) {
                     ) {
                         listOf(
                             Triple("monthly", IcCalendar, Triple(
-                                "Monthly", "Reset every 1st of the month", "Jan 1 – Jan 31"
+                                t("onboarding.monthly"), t("onboarding.monthlyDesc"), t("onboarding.monthlyExample")
                             )),
                             Triple("paycycle", IcRefreshCcw, Triple(
-                                "Paycycle", "Reset on your custom payday", "e.g. 25th – 24th"
+                                t("onboarding.payday"), t("onboarding.paydayDesc"), t("onboarding.paydayExample")
                             ))
                         ).forEach { (mode, icon, labels) ->
                             val (name, desc, example) = labels
@@ -223,7 +226,7 @@ fun OnboardingScreen(onDone: () -> Unit) {
                                 Box(
                                     modifier = Modifier
                                         .clip(RoundedCornerShape(6.dp))
-                                        .background(Color(0x0AFFFFFF))
+                                        .background(if (isDark) Color(0x0AFFFFFF) else Color(0x0A000000))
                                         .padding(horizontal = 8.dp, vertical = 2.dp)
                                 ) {
                                     Text(example, fontSize = 11.sp, color = text3)
@@ -241,22 +244,22 @@ fun OnboardingScreen(onDone: () -> Unit) {
                         contentPadding = PaddingValues(0.dp),
                         modifier = Modifier.align(Alignment.Start).padding(bottom = 24.dp)
                     ) {
-                        Text("← Back", fontSize = 13.sp, color = text3)
+                        Text("← ${t("onboarding.back")}", fontSize = 13.sp, color = text3)
                     }
 
                     StepIcon(icon = IcCalendar)
                     Spacer(Modifier.height(16.dp))
-                    Text("When does your pay arrive?", fontSize = 22.sp,
+                    Text(t("onboarding.step2Title"), fontSize = 22.sp,
                         fontWeight = FontWeight.SemiBold, color = text,
                         letterSpacing = (-0.5).sp, textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth())
                     Spacer(Modifier.height(6.dp))
-                    Text("Enter the day of the month you get paid",
+                    Text(t("onboarding.step2Subtitle"),
                         fontSize = 14.sp, color = text2, fontWeight = FontWeight.Light,
                         textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
                     Spacer(Modifier.height(28.dp))
 
-                    Text("Day of the month", fontSize = 13.sp, fontWeight = FontWeight.Medium,
+                    Text(t("onboarding.dayLabel"), fontSize = 13.sp, fontWeight = FontWeight.Medium,
                         color = text2)
                     Spacer(Modifier.height(10.dp))
                     Row(
@@ -288,7 +291,7 @@ fun OnboardingScreen(onDone: () -> Unit) {
                                 unfocusedTextColor = text,
                             )
                         )
-                        Text("of every month", fontSize = 14.sp, color = text2)
+                        Text(t("onboarding.ofEveryMonth"), fontSize = 14.sp, color = text2)
                     }
                     Spacer(Modifier.height(24.dp))
                 }
@@ -345,7 +348,7 @@ fun OnboardingScreen(onDone: () -> Unit) {
                         CircularProgressIndicator(modifier = Modifier.size(18.dp),
                             color = Color.White, strokeWidth = 2.dp)
                     } else {
-                        Text(if (step == 3) "Get started" else "Continue",
+                        Text(if (step == 3) t("onboarding.getStarted") else t("onboarding.continue"),
                             fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color.White)
                     }
                 }
@@ -367,4 +370,3 @@ private fun ColumnScope.StepIcon(icon: ImageVector) {
         Icon(icon, null, tint = Accent, modifier = Modifier.size(24.dp))
     }
 }
-
